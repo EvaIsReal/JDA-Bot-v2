@@ -16,11 +16,13 @@ import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 
 import javax.security.auth.login.LoginException;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class Main {
     private static Guild g;
@@ -34,7 +36,7 @@ public class Main {
         Timer timer = new Timer();
         TimerTask task;
 
-        jda = JDABuilder.createDefault("OTk5MjY3MzQ4MjA2ODUwMDU4.GeZDTH.yxq6a81176J3HzVTrw_gD5avns7gp6Zyow3rdM")
+        jda = JDABuilder.createDefault(getToken())
                 .setActivity(Activity.listening("/help"))
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .disableIntents(GatewayIntent.GUILD_MEMBERS)
@@ -72,6 +74,20 @@ public class Main {
         public void run() {
 
         }
+    }
+
+    public static String getToken() {
+        File file = new File("config.pvt");
+        if(file.exists()) {
+            try {
+                Scanner scanner = new Scanner(file);
+                List<String> result = scanner.tokens().filter(a -> a.startsWith("TOKEN=")).toList();
+                return result.get(0).substring(6);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
     public static JDA getJda() {
