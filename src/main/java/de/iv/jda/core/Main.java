@@ -45,6 +45,11 @@ public class Main {
                 .build()
                 .awaitReady();
 
+        try {
+            Uni.loadAssignments();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
         jda.retrieveCommands().complete().forEach(c -> c.delete().queue());
         g = jda.getGuildCache().getElementById("945071064210350090");

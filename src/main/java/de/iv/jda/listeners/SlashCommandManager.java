@@ -19,6 +19,7 @@ public class SlashCommandManager extends ListenerAdapter {
         serverSlashCommandList.add(new AssignmentCommand());
         serverSlashCommandList.add(new ClearCommand());
         serverSlashCommandList.add(new AssignmentListCommand());
+        serverSlashCommandList.add(new HelpCommand());
     }
 
     @Override

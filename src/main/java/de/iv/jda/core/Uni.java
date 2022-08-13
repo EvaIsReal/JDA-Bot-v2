@@ -7,9 +7,7 @@ import net.dv8tion.jda.api.entities.Member;
 import javax.annotation.processing.Filer;
 import java.io.*;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Uni {
@@ -55,40 +53,57 @@ public class Uni {
     }
 
     public static void serialize(Object o, File file) throws IOException {
-        FileOutputStream out = new FileOutputStream(file);
-        ObjectOutputStream oOut = new ObjectOutputStream(out);
+        FileOutputStream fileOut = new FileOutputStream(file);
+        ObjectOutputStream oOut = new ObjectOutputStream(fileOut);
 
         oOut.writeObject(o);
-        out.close();
+        fileOut.close();
         oOut.close();
     }
 
     public static Object deserialize(File file) throws IOException, ClassNotFoundException {
-        Object o = null;
-        FileInputStream in = new FileInputStream(file);
-        ObjectInputStream oIn = new ObjectInputStream(in);
-        o = oIn.readObject();
-        in.close();
+        FileInputStream fileIn = new FileInputStream(file);
+        ObjectInputStream oIn = new ObjectInputStream(fileIn);
+
+        Object o = oIn.readObject();
+        fileIn.close();
         oIn.close();
         return o;
     }
 
     public static void saveAssignments() throws IOException {
-        File file = new File("assignments.ser");
-        if(!file.exists()) file.createNewFile();
-        serialize(assignments, file);
+        File file = new File("assignments/");
+        if(!file.exists()) {
+            file.mkdirs();
+        }
+        assignments.forEach(a -> {
+            File aFile = new File(file.getPath(), a.getTitle() + ".ser");
+            if(!aFile.exists()) {
+                try {
+                    aFile.createNewFile();
+                    serialize(a, aFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
     }
 
     public static void loadAssignments() throws FileNotFoundException {
-        Gson gson = new Gson();
-        File file = new File("assignments.ser");
-        if(file.exists()) {
-            try {
-                assignments = (ArrayList<Assignment>) deserialize(file);
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+        File file = new File("assignments/");
+        ArrayList<Assignment> n = new ArrayList<>();
+        if(file.isDirectory()) {
+            Arrays.stream(file.listFiles()).toList().forEach(f -> {
+                try {
+                    n.add((Assignment) deserialize(f));
+                    f.delete();
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            });
         }
+        Main.assignments = n;
     }
 
     public static ArrayList<Assignment> getAssignments() {
